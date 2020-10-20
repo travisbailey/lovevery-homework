@@ -8,35 +8,51 @@
 <h2 class="h4 mt-4"><%= @order.product.name %></h2>
 <h3 class="h5 font-weight-normal mb-3"><%= number_to_currency(@order.product.price_cents / 100) %></h3>
 <%= form_with model: @order, local: true  do |form| %>
-  <div class="form-row">
-    <div class="form-group col-md-12">
-      <%= form.label :shipping_name, "Your Name" %>
-      <%= form.text_field :shipping_name, class: "form-control" %>
-    </div>
-    <div class="form-group col-md-6">
-      <%= form.label :child_full_name, "Your Child's Name" %>
-      <%= form.text_field :child_full_name, class: "form-control" %>
-    </div>
-    <div class="form-group col-md-6">
-      <%= form.label :child_birthdate, "Your Child's Birthdate (or expected date)" %>
-      <%= form.text_field :child_birthdate, class: "form-control" %>
-      <small id="passwordHelpBlock" class="form-text text-muted">
-        Use format YYYY-MM-DD
-      </small>
+  <div class="gift-question border rounded p-3 bg-light">
+    <div class="form-row">
+      <div class="form-check-inline col-md-12">
+        <%= form.check_box :is_gift, {class: "form-check-input form-control-lg"}, true, false %>
+        <%= form.label :is_gift, "Is this a gift?", class: "form-check-label" %>
+      </div>
     </div>
   </div>
-  <div class="form-row">
-    <%= form.hidden_field :product_id %>
-    <div class="form-group col-md-8">
-      <%= form.label :address %>
-      <%= form.text_field :address, class: "form-control", placeholder: "e.g. 123 Any St" %>
+  <div class="parent-view border rounded p-3">
+    <div class="form-row">
+      <div class="form-group col-md-12 gift-message">
+        <%= form.label :gift_message, "Gift Message" %>
+        <%= form.text_field :gift_message, class: "form-control" %>
+      </div>
+      <div class="form-group col-md-12">
+        <%= form.label :shipping_name, "Your Name" %>
+        <%= form.text_field :shipping_name, class: "form-control" %>
+      </div>
+      <div class="form-group col-md-6">
+        <%= form.label :child_full_name, "Your Child's Name" %>
+        <%= form.text_field :child_full_name, class: "form-control" %>
+      </div>
+      <div class="form-group col-md-6">
+        <%= form.label :child_birthdate, "Your Child's Birthdate (or expected date)" %>
+        <%= form.text_field :child_birthdate, class: "form-control" %>
+        <small id="passwordHelpBlock" class="form-text text-muted">
+          Use format YYYY-MM-DD
+        </small>
+      </div>
     </div>
-    <div class="form-group col-md-4">
-      <%= form.label :zipcode %>
-      <%= form.text_field :zipcode, class: "form-control", placeholder: "e.g. 83701" %>
+    <div class="form-row">
+      <div class="form-group col-md-8 child-address">
+        <%= form.label :address %>
+        <%= form.text_field :address, class: "form-control", placeholder: "e.g. 123 Any St" %>
+      </div>
+      <div class="form-group col-md-4 child-zipcode">
+        <%= form.label :zipcode %>
+        <%= form.text_field :zipcode, class: "form-control", placeholder: "e.g. 83701" %>
+      </div>
     </div>
   </div>
-  <div class="border rounded p-3 bg-light">
+  <div id="payment-view" class="border rounded p-3 bg-light">
+    <div class="form-row">
+      <%= form.hidden_field :product_id %>
+    </div>
     <div class="form-row">
       <div class="form-group col-md-6">
         <%= form.label :credit_card_number %>
@@ -59,3 +75,31 @@
   </div>
 <% end %>
 </section>
+
+<%= javascript_tag do %>
+  function toggleViews() {
+    if (document.getElementById("order_is_gift").checked) {
+      document.querySelector("label[for=order_shipping_name]").innerHTML ="The Parent's Name";
+      document.querySelector("label[for=order_child_full_name]").innerHTML ="The Child's Name";
+      document.querySelector("label[for=order_child_birthdate]").innerHTML = "The Child's Birthdate";
+      document.querySelector("div.gift-message").style.display = '';
+      document.querySelector("div.child-address").style.display = 'none';
+      document.querySelector("div.child-zipcode").style.display = 'none';
+    } else {
+      document.querySelector("label[for=order_shipping_name]").innerHTML ="Your Name";
+      document.querySelector("label[for=order_child_full_name]").innerHTML = "Your Child's Name";
+      document.querySelector("label[for=order_child_birthdate]").innerHTML = "Your Child's Birthdate";
+      document.querySelector("div.gift-message").style.display = 'none';
+      document.querySelector("div.child-address").style.display = '';
+      document.querySelector("div.child-zipcode").style.display = '';
+    }
+  }
+
+  const checkbox = document.getElementById("order_is_gift");
+
+  checkbox.addEventListener('change', (event) => {
+    toggleViews();
+  });
+
+  toggleViews();
+<% end %>
